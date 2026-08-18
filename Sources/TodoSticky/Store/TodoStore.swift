@@ -16,7 +16,7 @@ final class TodoStore: ObservableObject {
 
     var sortedActive: [TodoItem] {
         items.filter { !$0.isCompleted }.sorted { lhs, rhs in
-            switch (lhs.dueDate, rhs.dueDate) {
+            switch (lhs.effectiveDueDate, rhs.effectiveDueDate) {
             case let (l?, r?):
                 if l != r { return l < r }
                 return lhs.createdAt < rhs.createdAt

@@ -48,6 +48,17 @@ struct TodoItem: Identifiable, Codable, Equatable {
         text.attributedString(applying: links)
     }
 
+    /// Used for sort ordering only (never persisted/displayed as the task's own due date): if
+    /// the task itself has no due date, falls back to the earliest due date among its
+    /// incomplete subtasks, so a task with an urgent-but-undated parent still surfaces near
+    /// the top of the list instead of sorting as if nothing were due.
+    var effectiveDueDate: Date? {
+        if let dueDate {
+            return dueDate
+        }
+        return subtasks.compactMap { $0.isCompleted ? nil : $0.dueDate }.min()
+    }
+
     var isOverdue: Bool {
         guard !isCompleted, let dueDate else { return false }
         return dueDate < Date()
