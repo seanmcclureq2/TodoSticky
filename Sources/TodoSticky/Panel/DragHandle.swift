@@ -10,6 +10,8 @@ struct DragHandle: NSViewRepresentable {
     var onQuit: () -> Void
     var currentTheme: AppTheme
     var onSelectTheme: (AppTheme) -> Void
+    var showCompleted: Bool
+    var onToggleShowCompleted: () -> Void
     var onToggleLoginItem: () -> Void
 
     func makeNSView(context: Context) -> DragHandleView {
@@ -18,6 +20,8 @@ struct DragHandle: NSViewRepresentable {
         view.onQuit = onQuit
         view.currentTheme = currentTheme
         view.onSelectTheme = onSelectTheme
+        view.showCompleted = showCompleted
+        view.onToggleShowCompleted = onToggleShowCompleted
         view.onToggleLoginItem = onToggleLoginItem
         return view
     }
@@ -27,6 +31,8 @@ struct DragHandle: NSViewRepresentable {
         nsView.onQuit = onQuit
         nsView.currentTheme = currentTheme
         nsView.onSelectTheme = onSelectTheme
+        nsView.showCompleted = showCompleted
+        nsView.onToggleShowCompleted = onToggleShowCompleted
         nsView.onToggleLoginItem = onToggleLoginItem
     }
 }
@@ -36,6 +42,8 @@ final class DragHandleView: NSView {
     var onQuit: (() -> Void)?
     var currentTheme: AppTheme = .system
     var onSelectTheme: ((AppTheme) -> Void)?
+    var showCompleted: Bool = false
+    var onToggleShowCompleted: (() -> Void)?
     var onToggleLoginItem: (() -> Void)?
 
     override func mouseDown(with event: NSEvent) {
@@ -61,6 +69,11 @@ final class DragHandleView: NSView {
         themeItem.submenu = themeMenu
         menu.addItem(themeItem)
 
+        let showCompletedItem = NSMenuItem(title: "Show Completed", action: #selector(handleToggleShowCompleted), keyEquivalent: "")
+        showCompletedItem.target = self
+        showCompletedItem.state = showCompleted ? .on : .off
+        menu.addItem(showCompletedItem)
+
         menu.addItem(.separator())
 
         let loginItem = NSMenuItem(title: "Start at Login", action: #selector(handleToggleLoginItem), keyEquivalent: "")
@@ -80,6 +93,10 @@ final class DragHandleView: NSView {
     @objc private func handleSelectTheme(_ sender: NSMenuItem) {
         guard let theme = sender.representedObject as? AppTheme else { return }
         onSelectTheme?(theme)
+    }
+
+    @objc private func handleToggleShowCompleted() {
+        onToggleShowCompleted?()
     }
 
     @objc private func handleToggleLoginItem() {

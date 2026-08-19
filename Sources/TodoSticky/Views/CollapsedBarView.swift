@@ -12,6 +12,8 @@ struct CollapsedBarView: View {
                 onQuit: { NSApp.terminate(nil) },
                 currentTheme: controller.theme,
                 onSelectTheme: { controller.setTheme($0) },
+                showCompleted: store.showCompleted,
+                onToggleShowCompleted: { store.toggleShowCompleted() },
                 onToggleLoginItem: { controller.toggleLoginItem() }
             )
             HStack(spacing: 6) {

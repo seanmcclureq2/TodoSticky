@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 final class TodoStore: ObservableObject {
     @Published private(set) var items: [TodoItem]
+    @Published private(set) var showCompleted: Bool
 
     enum UrgencyStatus {
         case overdue
@@ -12,27 +13,35 @@ final class TodoStore: ObservableObject {
 
     init() {
         items = PersistenceController.loadTodos()
+        showCompleted = PersistenceController.loadShowCompleted()
+    }
+
+    func toggleShowCompleted() {
+        showCompleted.toggle()
+        PersistenceController.saveShowCompleted(showCompleted)
     }
 
     var sortedActive: [TodoItem] {
-        items.filter { !$0.isCompleted }.sorted { lhs, rhs in
-            switch (lhs.effectiveDueDate, rhs.effectiveDueDate) {
-            case let (l?, r?):
-                if l != r { return l < r }
-                return lhs.createdAt < rhs.createdAt
-            case (nil, nil):
-                return lhs.createdAt < rhs.createdAt
-            case (nil, _):
-                return false
-            case (_, nil):
-                return true
-            }
-        }
+        items.filter { !$0.isCompleted }.sorted(by: Self.dueDateOrder)
     }
 
+    /// Same due-date ordering as `sortedActive` (soonest first, undated last), only shown when
+    /// `showCompleted` is on.
     var sortedCompleted: [TodoItem] {
-        items.filter { $0.isCompleted }.sorted { lhs, rhs in
-            (lhs.completedAt ?? .distantPast) > (rhs.completedAt ?? .distantPast)
+        items.filter { $0.isCompleted }.sorted(by: Self.dueDateOrder)
+    }
+
+    private static func dueDateOrder(_ lhs: TodoItem, _ rhs: TodoItem) -> Bool {
+        switch (lhs.effectiveDueDate, rhs.effectiveDueDate) {
+        case let (l?, r?):
+            if l != r { return l < r }
+            return lhs.createdAt < rhs.createdAt
+        case (nil, nil):
+            return lhs.createdAt < rhs.createdAt
+        case (nil, _):
+            return false
+        case (_, nil):
+            return true
         }
     }
 
