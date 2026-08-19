@@ -17,6 +17,7 @@ struct SubtaskRowView: View {
                 Image(systemName: subtask.isCompleted ? "checkmark.square.fill" : "square")
                     .font(.system(size: 11))
                     .foregroundStyle(subtask.isCompleted ? .secondary : .primary)
+                    .accessibilityLabel(subtask.isCompleted ? "Completed" : "Not completed")
             }
             .buttonStyle(.plain)
 
@@ -83,6 +84,7 @@ struct SubtaskRowView: View {
                 Image(systemName: "trash")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("Delete subtask")
             }
             .buttonStyle(.plain)
             .opacity(isHovering ? 1 : 0)

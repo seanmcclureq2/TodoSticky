@@ -18,6 +18,7 @@ struct AddItemView: View {
 
             Button(action: addItem) {
                 Image(systemName: "plus.circle.fill")
+                    .accessibilityLabel("Add task")
             }
             .buttonStyle(.plain)
             .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

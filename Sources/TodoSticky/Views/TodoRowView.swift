@@ -65,7 +65,7 @@ struct TodoRowView: View {
                         }
                     }
 
-                    if let dueDate = item.dueDate {
+                    if let dueDate = item.effectiveDueDate {
                         Text(dueDate, format: .dateTime.month().day().hour().minute())
                             .font(.system(size: 10))
                             .foregroundStyle(item.isOverdue ? .red : .secondary)
@@ -81,6 +81,7 @@ struct TodoRowView: View {
                     } label: {
                         Image(systemName: "plus.circle")
                             .foregroundStyle(.secondary)
+                            .accessibilityLabel("Add subtask")
                     }
                     .buttonStyle(.plain)
                     .opacity(isHovering ? 1 : 0)
@@ -96,6 +97,7 @@ struct TodoRowView: View {
                 } label: {
                     Image(systemName: "trash")
                         .foregroundStyle(.secondary)
+                        .accessibilityLabel("Delete task")
                 }
                 .buttonStyle(.plain)
                 .opacity(isHovering ? 1 : 0)
@@ -133,6 +135,7 @@ struct TodoRowView: View {
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundStyle(.secondary)
+                                    .accessibilityLabel("Cancel adding subtask")
                             }
                             .buttonStyle(.plain)
                         }
@@ -155,6 +158,7 @@ struct TodoRowView: View {
         } label: {
             Image(systemName: item.isCompleted ? "checkmark.square.fill" : "square")
                 .foregroundStyle(item.isCompleted ? .secondary : .primary)
+                .accessibilityLabel(item.isCompleted ? "Completed" : "Not completed")
         }
         .buttonStyle(.plain)
     }
