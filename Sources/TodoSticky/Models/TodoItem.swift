@@ -48,10 +48,11 @@ struct TodoItem: Identifiable, Codable, Equatable {
         text.attributedString(applying: links)
     }
 
-    /// Used for sort ordering only (never persisted/displayed as the task's own due date): if
-    /// the task itself has no due date, falls back to the earliest due date among its
-    /// incomplete subtasks, so a task with an urgent-but-undated parent still surfaces near
-    /// the top of the list instead of sorting as if nothing were due.
+    /// Not persisted, and distinct from `dueDate` (the task's own explicitly-set date, used by
+    /// the due-date picker so "clear" behaves predictably): if the task itself has no due date,
+    /// rolls up the earliest due date among its incomplete subtasks instead. Drives sorting,
+    /// the displayed due-date badge, and overdue/due-soon coloring, so an urgent-but-undated
+    /// parent surfaces and reads the same as if it carried that date itself.
     var effectiveDueDate: Date? {
         if let dueDate {
             return dueDate
@@ -60,14 +61,14 @@ struct TodoItem: Identifiable, Codable, Equatable {
     }
 
     var isOverdue: Bool {
-        guard !isCompleted, let dueDate else { return false }
-        return dueDate < Date()
+        guard !isCompleted, let effectiveDueDate else { return false }
+        return effectiveDueDate < Date()
     }
 
     func isDueSoon(within interval: TimeInterval) -> Bool {
-        guard !isCompleted, let dueDate else { return false }
+        guard !isCompleted, let effectiveDueDate else { return false }
         let now = Date()
-        return dueDate >= now && dueDate <= now.addingTimeInterval(interval)
+        return effectiveDueDate >= now && effectiveDueDate <= now.addingTimeInterval(interval)
     }
 
     /// Incomplete subtasks first (in original order), completed subtasks pushed to the bottom (in original order).
